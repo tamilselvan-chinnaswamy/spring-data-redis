@@ -15,12 +15,12 @@ pipeline {
 		stage("Docker images") {
 			parallel {
 				stage('Publish OpenJDK 8 + Redis 5.0 docker image') {
-//					when {
-//						anyOf {
-//							changeset "ci/openjdk8-redis-5.0/**"
-//							changeset "Makefile"
-//						}
-//					}
+					when {
+						anyOf {
+							changeset "ci/openjdk8-redis-5.0/**"
+							changeset "Makefile"
+						}
+					}
 					agent { label 'data' }
 					options { timeout(time: 20, unit: 'MINUTES') }
 
@@ -34,12 +34,12 @@ pipeline {
 					}
 				}
 				stage('Publish OpenJDK 11 + Redis 5.0 docker image') {
-//					when {
-//						anyOf {
-//							changeset "ci/openjdk11-redis-5.0/**"
-//							changeset "Makefile"
-//						}
-//					}
+					when {
+						anyOf {
+							changeset "ci/openjdk11-redis-5.0/**"
+							changeset "Makefile"
+						}
+					}
 					agent { label 'data' }
 					options { timeout(time: 20, unit: 'MINUTES') }
 
@@ -115,7 +115,7 @@ pipeline {
 						sh 'make start'
 
 						// Execute maven test
-						sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw clean test -DrunLongTests=true -U -B'
+						sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw -Pjava11 clean test -DrunLongTests=true -U -B'
 
 						// Capture resulting exit code from maven (pass/fail)
 						sh 'RESULT=\$?'
