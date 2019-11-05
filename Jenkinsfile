@@ -15,12 +15,12 @@ pipeline {
 		stage("Docker images") {
 			parallel {
 				stage('Publish OpenJDK 8 + Redis 5.0 docker image') {
-					when {
-						anyOf {
-							changeset "ci/openjdk8-redis-5.0/**"
-							changeset "Makefile"
-						}
-					}
+//					when {
+//						anyOf {
+//							changeset "ci/openjdk8-redis-5.0/**"
+//							changeset "Makefile"
+//						}
+//					}
 					agent { label 'data' }
 					options { timeout(time: 20, unit: 'MINUTES') }
 
