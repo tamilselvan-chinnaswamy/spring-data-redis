@@ -26,7 +26,7 @@ pipeline {
 
 					steps {
 						script {
-							def image = docker.build("springci/spring-data-openjdk8-with-redis-5.0", "ci/openjdk8-redis-5.0/")
+							def image = docker.build("springci/spring-data-openjdk8-with-redis-5.0", "-f ci/openjdk8-redis-5.0/Dockerfile .")
 							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
 								image.push()
 							}
@@ -45,7 +45,7 @@ pipeline {
 
 					steps {
 						script {
-							def image = docker.build("springci/spring-data-openjdk11-with-redis-5.0", "ci/openjdk11-redis-5.0/")
+							def image = docker.build("springci/spring-data-openjdk11-with-redis-5.0", "-f ci/openjdk11-redis-5.0/Dockerfile .")
 							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
 								image.push()
 							}
