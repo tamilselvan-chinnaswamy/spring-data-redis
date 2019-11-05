@@ -55,83 +55,80 @@ pipeline {
 			}
 		}
 
-		stage("Test") {
+		stage("test: baseline") {
 			when {
 				anyOf {
 					branch 'master'
 					not { triggeredBy 'UpstreamCause' }
 				}
 			}
-
-			stage("test: baseline") {
-				agent {
-					docker {
-						image 'springci/spring-data-openjdk8-with-redis-5.0:latest'
-						label 'data'
-						args '-v $HOME:/tmp/jenkins-home'
-					}
-				}
-				options { timeout(time: 30, unit: 'MINUTES') }
-				steps {
-					sh 'rm -rf ?'
-
-					// Create link to directory with Redis binaries
-					sh 'ln -sf /work'
-
-					// Launch Redis in proper configuration
-					sh 'make start'
-
-					// Execute maven test
-					sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw clean test -DrunLongTests=true -U -B'
-
-					// Capture resulting exit code from maven (pass/fail)
-					sh 'RESULT=\$?'
-
-					// Shutdown Redis
-					sh 'make stop'
-
-					// Return maven results
-					sh 'exit \$RESULT'
-
+			agent {
+				docker {
+					image 'springci/spring-data-openjdk8-with-redis-5.0:latest'
+					label 'data'
+					args '-v $HOME:/tmp/jenkins-home'
 				}
 			}
+			options { timeout(time: 30, unit: 'MINUTES') }
+			steps {
+				sh 'rm -rf ?'
 
-			stage("Test other configurations") {
-				parallel {
-					stage("test: baseline (jdk11)") {
-						agent {
-							docker {
-								image 'springci/spring-data-openjdk11-with-redis-5.0:latest'
-								label 'data'
-								args '-v $HOME:/tmp/jenkins-home'
-							}
-						}
-						options { timeout(time: 30, unit: 'MINUTES') }
-						steps {
-							sh 'rm -rf ?'
+				// Create link to directory with Redis binaries
+				sh 'ln -sf /work'
 
-							// Create link to directory with Redis binaries
-							sh 'ln -sf /work'
+				// Launch Redis in proper configuration
+				sh 'make start'
 
-							// Launch Redis in proper configuration
-							sh 'make start'
+				// Execute maven test
+				sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw clean test -DrunLongTests=true -U -B'
 
-							// Execute maven test
-							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw clean test -DrunLongTests=true -U -B'
+				// Capture resulting exit code from maven (pass/fail)
+				sh 'RESULT=\$?'
 
-							// Capture resulting exit code from maven (pass/fail)
-							sh 'RESULT=\$?'
+				// Shutdown Redis
+				sh 'make stop'
 
-							// Shutdown Redis
-							sh 'make stop'
+				// Return maven results
+				sh 'exit \$RESULT'
 
-							// Return maven results
-							sh 'exit \$RESULT'
+			}
+		}
 
+		stage("Test other configurations") {
+			parallel {
+				stage("test: baseline (jdk11)") {
+					agent {
+						docker {
+							image 'springci/spring-data-openjdk11-with-redis-5.0:latest'
+							label 'data'
+							args '-v $HOME:/tmp/jenkins-home'
 						}
 					}
+					options { timeout(time: 30, unit: 'MINUTES') }
+					steps {
+						sh 'rm -rf ?'
 
+						// Create link to directory with Redis binaries
+						sh 'ln -sf /work'
+
+						// Launch Redis in proper configuration
+						sh 'make start'
+
+						// Execute maven test
+						sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw clean test -DrunLongTests=true -U -B'
+
+						// Capture resulting exit code from maven (pass/fail)
+						sh 'RESULT=\$?'
+
+						// Shutdown Redis
+						sh 'make stop'
+
+						// Return maven results
+						sh 'exit \$RESULT'
+
+					}
 				}
+
 			}
 		}
 
